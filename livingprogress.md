@@ -155,3 +155,51 @@ World (reusable foundation)
 
 ## Repository Purpose
 This document serves as the living specification for development. All architectural decisions, feature requirements, and technical considerations should be tracked here as the project evolves.
+
+
+### Database Structure (proposed 9/11/2025)
+
+Relationships Overview
+One-to-Many
+
+users → worlds (user can create multiple worlds)
+users → characters (user can create multiple characters)
+users → stories (user can create multiple stories)
+worlds → stories (world can contain multiple stories)
+stories → scenes (story contains multiple scenes)
+stories → story_characters (story can have multiple characters)
+characters → story_characters (character can appear in multiple stories)
+story_characters → character_ledger (character tracked across multiple scenes)
+
+Many-to-Many
+
+stories ↔ characters (via story_characters)
+story_characters ↔ character_roles (via story_character_roles)
+characters ↔ characters (via character_relationships)
+
+Key Design Decisions
+Global vs Story-Specific Relationships
+
+Global: character_relationships.story_id = NULL - relationship exists across all stories
+Story-Specific: character_relationships.story_id = [story_id] - relationship only applies to specific story
+Precedence: Story-specific relationships override global ones for that story
+
+Character Reusability
+
+Characters exist independently and can be used across multiple stories
+Story-specific character details stored in story_characters.story_specific_notes
+Character development tracked per story via character_ledger
+
+Flexible World Building
+
+World details stored as JSON in worlds.world_data for maximum flexibility
+Allows modular containers (history, culture, geography) without rigid schema
+Can accommodate any genre from contemporary to high fantasy
+
+AI Agent Integration
+
+character_ledger designed to be populated by AI agents analyzing story content
+ai_generated flag distinguishes automatic entries from manual ones
+Structure supports multiple specialized AI agents adding different types of insights
+
+Retry
